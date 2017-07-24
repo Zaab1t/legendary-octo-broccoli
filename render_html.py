@@ -27,7 +27,11 @@ POST_TEMPLATE = """
         <a class="github-button" href="https://github.com/Zaab1t"
         aria-label="Follow @Zaab1t on GitHub">Follow @Zaab1t</a>
         <hr>
-        {content}
+        <main role="main">
+            <article class="content">
+            {content}
+            </article>
+        </main>
     </body>
 
     <footer>
