@@ -42,6 +42,19 @@ POST_TEMPLATE = """
 </html>
 """
 
+INDEX_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Carl Bordum Hansen</title>
+    </head>
+    <body>
+        {links}
+    </body>
+</html>
+"""
+
 
 class PostRenderer(mistune.Renderer):
     def __init__(self):
@@ -73,21 +86,28 @@ def main():
     renderer = PostRenderer()
     markdown = mistune.Markdown(renderer=renderer)
     markdown_posts = {}
+    titles = {}
 
     for post in os.listdir(POSTS_DIR):
         with open(POSTS_DIR + '/' + post) as f:
             markdown_posts[post] = f.read()
 
     year = datetime.utcnow().year
-    for title, content in markdown_posts.items():
-        with open(OUTPUT_DIR + '/' + title, 'w+') as f:
+    for filename, content in markdown_posts.items():
+        with open(OUTPUT_DIR + '/' + filename, 'w+') as f:
             post = markdown(content)
+            titles[filename] = renderer.title
             html = POST_TEMPLATE.format(
                 title=renderer.title,
                 content=post,
                 year=year,    
             )
             f.write(html)
+
+    with open(OUTPUT_DIR + '/' + 'index', 'w+') as f:
+        links = ['<p><a href="{}">{}</a></p>'.format(
+            filename, title) for filename, title in titles.items()]
+        f.write(INDEX_TEMPLATE.format(links=''.join(links)))
 
 
 if __name__ == '__main__':
