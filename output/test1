@@ -13,7 +13,9 @@
         <a class="github-button" href="https://github.com/Zaab1t"
         aria-label="Follow @Zaab1t on GitHub">Follow @Zaab1t</a>
         <hr>
-        <p>Integer ultricies est arcu, quis volutpat magna fringilla ut. Vestibulum sed varius neque. Suspendisse in turpis vitae dui sodales tempus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Suspendisse mollis erat et sapien rhoncus varius. Donec et mi mauris. Suspendisse imperdiet quam non sapien congue, non malesuada dolor tempor. Sed posuere tortor sit amet est ultrices venenatis.</p>
+        <main role="main">
+            <article class="content">
+            <p>Integer ultricies est arcu, quis volutpat magna fringilla ut. Vestibulum sed varius neque. Suspendisse in turpis vitae dui sodales tempus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Suspendisse mollis erat et sapien rhoncus varius. Donec et mi mauris. Suspendisse imperdiet quam non sapien congue, non malesuada dolor tempor. Sed posuere tortor sit amet est ultrices venenatis.</p>
 <h2>Smaller header</h2>
 <p>rem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur cursus arcu eu purus laoreet, eu dictum purus rhoncus. Ut ac dolor lorem. Phasellus erat lacus, mattis in tincidunt sed, mattis vel ligula. Ut sed nulla dolor. Integer sed sem ac mi congue varius. Sed varius lectus eget ultricies pulvinar. Duis a tortor non nibh vehicula venenatis. Sed blandit ipsum ligula, vitae dictum lorem pellentesque mollis.</p>
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #4070a0">&#39;It even has code highlighting&#39;</span>
@@ -33,6 +35,8 @@ log<span style="color: #666666">.</span>info(<span style="color: #4070a0">&#39;I
 <h4>Yet we can still go smaller</h4>
 <p>Nunc sit amet metus eget arcu malesuada lacinia. Morbi molestie venenatis nisl nec accumsan. Donec viverra neque sit amet eleifend viverra. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam egestas et massa sit amet finibus. Fusce semper, felis non interdum sollicitudin, lacus nisl placerat arcu, at iaculis velit mauris id orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur vel nisl mi. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Vestibulum viverra quis risus sit amet tempor. Morbi elementum mauris elementum, iaculis ex in, auctor erat. Duis condimentum risus ut purus auctor, eget dapibus tortor vestibulum. Aliquam sit amet porta nunc. Ut aliquam consequat facilisis. Vivamus elementum arcu ac orci hendrerit ullamcorper. Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
 
+            </article>
+        </main>
     </body>
 
     <footer>
