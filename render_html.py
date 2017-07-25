@@ -94,7 +94,7 @@ def main():
 
     year = datetime.utcnow().year
     for filename, content in markdown_posts.items():
-        with open(OUTPUT_DIR + '/' + filename, 'w+') as f:
+        with open(OUTPUT_DIR + '/' + filename + '.html', 'w+') as f:
             post = markdown(content)
             titles[filename] = renderer.title
             html = POST_TEMPLATE.format(
@@ -104,7 +104,7 @@ def main():
             )
             f.write(html)
 
-    with open(OUTPUT_DIR + '/' + 'index', 'w+') as f:
+    with open(OUTPUT_DIR + '/' + 'index' + '.html', 'w+') as f:
         links = ['<p><a href="{}">{}</a></p>'.format(
             filename, title) for filename, title in titles.items()]
         f.write(INDEX_TEMPLATE.format(links=''.join(links)))
