@@ -70,3 +70,8 @@ footer p {
 sup {
 	font-size: 14px;
 }
+
+code {
+	background: #f0f0f0;
+	font-size: 0.9em;
+}
