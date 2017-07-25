@@ -1,0 +1,120 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Why 'd = {}' is faster than 'd = dict()'</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+    </head>
+
+    <body>
+        <h1><strong>Why 'd = {}' is faster than 'd = dict()'</strong></h1>
+        <a class="github-button" href="https://github.com/Zaab1t"
+        aria-label="Follow @Zaab1t on GitHub">Follow @Zaab1t</a>
+        <hr>
+        <main role="main">
+            <article class="content">
+            <p>It turns out that using str(), list(), dict() and tuple() for creating empty sequences isn't as fast as their shorthand counterparts ('', [], {}, ()). Plotting the differences with this code gives the following graphs:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">timeit</span> <span style="color: #007020; font-weight: bold">import</span> timeit
+<span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">matplotlib.pyplot</span> <span style="color: #007020; font-weight: bold">as</span> <span style="color: #0e84b5; font-weight: bold">plt</span>
+<span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">sys</span>
+
+title <span style="color: #666666">=</span> <span style="color: #4070a0">&#39;</span><span style="color: #70a0d0; font-style: italic">{type_}</span><span style="color: #4070a0"> creation time in Python </span><span style="color: #70a0d0; font-style: italic">{version}</span><span style="color: #4070a0">&#39;</span>
+version <span style="color: #666666">=</span> <span style="color: #4070a0">&#39;</span><span style="color: #70a0d0; font-style: italic">%d</span><span style="color: #4070a0">.</span><span style="color: #70a0d0; font-style: italic">%d</span><span style="color: #4070a0">.</span><span style="color: #70a0d0; font-style: italic">%d</span><span style="color: #4070a0">&#39;</span> <span style="color: #666666">%</span> sys<span style="color: #666666">.</span>version_info[:<span style="color: #40a070">3</span>]
+executions <span style="color: #666666">=</span> [<span style="color: #40a070">10</span><span style="color: #666666">**</span>i <span style="color: #007020; font-weight: bold">for</span> i <span style="color: #007020; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #40a070">10</span>)]
+comparisons <span style="color: #666666">=</span> (
+    (<span style="color: #007020">str</span>, (<span style="color: #4070a0">&#39;s=&quot;&quot;&#39;</span>, <span style="color: #4070a0">&#39;s=str()&#39;</span>)),
+    (<span style="color: #007020">list</span>, (<span style="color: #4070a0">&#39;l=[]&#39;</span>, <span style="color: #4070a0">&#39;l=list()&#39;</span>)),
+    (<span style="color: #007020">dict</span>, (<span style="color: #4070a0">&#39;d=</span><span style="color: #70a0d0; font-style: italic">{}</span><span style="color: #4070a0">&#39;</span>, <span style="color: #4070a0">&#39;d=dict()&#39;</span>)),
+    (<span style="color: #007020">tuple</span>, (<span style="color: #4070a0">&#39;t=()&#39;</span>, <span style="color: #4070a0">&#39;t=tuple()&#39;</span>)),
+)
+
+<span style="color: #007020; font-weight: bold">for</span> i, (type_, statements) <span style="color: #007020; font-weight: bold">in</span> <span style="color: #007020">enumerate</span>(comparisons):
+    plt<span style="color: #666666">.</span>figure(i)
+    plt<span style="color: #666666">.</span>title(title<span style="color: #666666">.</span>format(type_<span style="color: #666666">=</span>type_<span style="color: #666666">.</span><span style="color: #bb60d5">__name__</span>, version<span style="color: #666666">=</span>version))
+    plt<span style="color: #666666">.</span>xlabel(<span style="color: #4070a0">&#39;Number of Executions&#39;</span>)
+    plt<span style="color: #666666">.</span>ylabel(<span style="color: #4070a0">&#39;Execution Duration (s)&#39;</span>)
+    plt<span style="color: #666666">.</span>yscale(<span style="color: #4070a0">&#39;log&#39;</span>)
+    plt<span style="color: #666666">.</span>xscale(<span style="color: #4070a0">&#39;log&#39;</span>)
+    <span style="color: #007020; font-weight: bold">for</span> statement <span style="color: #007020; font-weight: bold">in</span> statements:
+        xaxis <span style="color: #666666">=</span> [timeit(statement, number<span style="color: #666666">=</span>n) <span style="color: #007020; font-weight: bold">for</span> n <span style="color: #007020; font-weight: bold">in</span> executions]
+        plt<span style="color: #666666">.</span>plot(xaxis, executions, label<span style="color: #666666">=</span>statement)
+    plt<span style="color: #666666">.</span>legend(statements)
+
+plt<span style="color: #666666">.</span>show()
+</pre></div>
+<p><img src="https://s3.eu-central-1.amazonaws.com/zaab1t-blog-images/dict_time.png" alt="Plot of the difference between d={} and d=dict() in Python 3.6.2 drawn with matplotlib" title="dict creation time in Python 3.6.2"></p>
+<p><img src="https://s3.eu-central-1.amazonaws.com/zaab1t-blog-images/list_time.png" alt="Plot of the difference between l=[] and l=list() in Python 3.6.2 drawn with matplotlib" title="list creation time in Python 3.6.2"></p>
+<p><img src="https://s3.eu-central-1.amazonaws.com/zaab1t-blog-images/str_time.png" alt="Plot of the difference between s=&#39;&#39; and s=str() in Python 3.6.2 drawn with matplotlib" title="str creation time in PYthon 3.6.2"></p>
+<p><img src="https://s3.eu-central-1.amazonaws.com/zaab1t-blog-images/tuple_time.png" alt="Plot of the difference between t=() and t=tuple() in Python 3.6.2 drawn with matplotlib" title="tuple creation time in Python 3.6.2"></p>
+<p>There appears to be a trend. First off the number of objects created and the time it takes seems to be a linear function. Second off; It's clear that the shorthands are always faster. Running the code multiple times gives consistent results.</p>
+<p>Why are they faster? It's actually fairly simple, why there is a difference. We can inspect what happens with the dis module:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">dis</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">f</span>(): s<span style="color: #666666">=</span><span style="color: #4070a0">&#39;&#39;</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>dis<span style="color: #666666">.</span>dis(f)
+<span style="color: #888888">  2           0 LOAD_CONST               1 (&#39;&#39;)</span>
+<span style="color: #888888">              2 STORE_FAST               0 (s)</span>
+<span style="color: #888888">              4 LOAD_CONST               0 (None)</span>
+<span style="color: #888888">              6 RETURN_VALUE</span>
+
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">f</span>(): s<span style="color: #666666">=</span><span style="color: #007020">str</span>()
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>dis<span style="color: #666666">.</span>dis(f)
+<span style="color: #888888">  2           0 LOAD_GLOBAL              0 (str)</span>
+<span style="color: #888888">              2 CALL_FUNCTION            0</span>
+<span style="color: #888888">              4 STORE_FAST               0 (s)</span>
+<span style="color: #888888">              6 LOAD_CONST               0 (None)</span>
+<span style="color: #888888">              8 RETURN_VALUE</span>
+
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">f</span>(): d<span style="color: #666666">=</span>{}
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>dis<span style="color: #666666">.</span>dis(f)
+<span style="color: #888888">  2           0 BUILD_MAP                0</span>
+<span style="color: #888888">              2 STORE_FAST               0 (d)</span>
+<span style="color: #888888">              4 LOAD_CONST               0 (None)</span>
+<span style="color: #888888">              6 RETURN_VALUE</span>
+
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">f</span>(): d<span style="color: #666666">=</span><span style="color: #007020">dict</span>()
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>dis<span style="color: #666666">.</span>dis(f)
+<span style="color: #888888">  2           0 LOAD_GLOBAL              0 (dict)</span>
+<span style="color: #888888">              2 CALL_FUNCTION            0</span>
+<span style="color: #888888">              4 STORE_FAST               0 (d)</span>
+<span style="color: #888888">              6 LOAD_CONST               0 (None)</span>
+<span style="color: #888888">8 RETURN_VALUE</span>
+</pre></div>
+<p>The dis module disassembles CPython bytecode. What you see in all caps are the opcodes that CPython executes.</p>
+<p>So when you call str(), list(), dict() or tuple() Python has to do two things: first load the global function, second call the function (and that function then has to execute). However, when you use the shothands, Python only has to call a fast opcode like LOAD_CONST or BUILD_MAP.</p>
+<p>What can we learn from this? LOAD_GLOBAL is slow because it first has to check for the function (in this case) in the local namespace, then in the module namespace and lastly the global (builtin) namespace. This means, that if you have some code that loads multiple globals and you have to call it hundred of thousands of times, you can try to avoid the globals before opting for Cython, C, Rust or whatever is cool tomorrow (you should check out <a href="https://pypy.org">PyPy</a>.</p>
+<p>Not too long ago I had a discussion with <a href="&quot;https://github.com/Akuli&quot;">Akuli</a> about the fastest way to compute the length (number of digits) of a natural number (f(1)=1, f(2)=1, f(101)=3). Akuli was smarter than me and suggested using log10. Here I compare how eliminating global scope affects the running time:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">math</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">timeit</span> <span style="color: #007020; font-weight: bold">import</span> timeit
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">akuli</span>(n):
+<span style="color: #c65d09; font-weight: bold">... </span>   <span style="color: #007020; font-weight: bold">return</span> math<span style="color: #666666">.</span>floor(math<span style="color: #666666">.</span>log10(n) <span style="color: #666666">+</span> <span style="color: #40a070">1</span>)
+<span style="color: #c65d09; font-weight: bold">...</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">no_globals</span>(n, floor<span style="color: #666666">=</span>math<span style="color: #666666">.</span>floor, log<span style="color: #666666">=</span>math<span style="color: #666666">.</span>log10):
+<span style="color: #c65d09; font-weight: bold">... </span>   <span style="color: #007020; font-weight: bold">return</span> floor(log(n) <span style="color: #666666">+</span> <span style="color: #40a070">1</span>)
+<span style="color: #c65d09; font-weight: bold">...</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[akuli(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import akuli&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">767.7599000299997</span>
+<span style="color: #c65d09; font-weight: bold">...</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[no_globals(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import no_globals&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">600.506064831</span>
+</pre></div>
+<p>The function is a whooping ~21.79 times faster with this simple speed up (<em>compiled language advocates hate him</em>). The naive version (and mine...) and perhaps the most intuitive runs like this with no globals:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">naive</span>(n, length<span style="color: #666666">=</span><span style="color: #007020">len</span>, string<span style="color: #666666">=</span><span style="color: #007020">str</span>):
+<span style="color: #c65d09; font-weight: bold">... </span>    <span style="color: #007020; font-weight: bold">return</span> length(string(n))
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[naive(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import naive&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">374.48799204826355</span>
+</pre></div>
+<p>Wait, <em>what</em>? It's faster! It's ~37.64 times faster! I honestly don't know why. Perhaps someone can tell me my benchmarks are wrong, len and str are insanely optimised or that log10 from C is slow.</p>
+<p><sup>This post was inspired by <a href='http://www.esologic.com/?p=2518'>Comparing blank string definition in Python3</a>.</sup></p>
+
+            </article>
+        </main>
+    </body>
+
+    <footer>
+        <hr>
+        <p>&copy; 2017 Carl Bordum Hansen</p>
+        <p>Contact: <a href="mailto:carl@bordum.dk">carl@bordum.dk</a></p>
+    </footer>
+</html>
