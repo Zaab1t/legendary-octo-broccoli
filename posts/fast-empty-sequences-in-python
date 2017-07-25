@@ -101,7 +101,7 @@ Not too long ago I had a discussion with [Akuli](https://github.com/Akuli) about
 600.506064831
 ```
 
-The function is a whooping ~21.79 times faster with this simple speed up (*compiled language advocates hate him*). The naive version (and mine...) and perhaps the most intuitive runs like this with no globals:
+The function is a whooping ~21.79% faster with this simple speed up (*compiled language advocates hate him*). The naive version (and mine...) and perhaps the most intuitive runs like this with no globals:
 
 ``` python
 >>> def naive(n, length=len, string=str):
@@ -110,6 +110,6 @@ The function is a whooping ~21.79 times faster with this simple speed up (*compi
 374.48799204826355
 ```
 
-Wait, *what* ? It's faster! It's ~37.64 times faster! I honestly don't know why. Perhaps someone can tell me my benchmarks are wrong, len and str are insanely optimised or that log10 from C somehow is slow.
+Wait, *what* ? It's faster! It's ~37.64% faster! I honestly don't know why. Perhaps someone can tell me my benchmarks are wrong, len and str are insanely optimised or that log10 from C somehow is slow.
 
 <sup>This post was inspired by <a href='http://www.esologic.com/?p=2518'>Comparing blank string definition in Python3</a>.</sup>

@@ -99,13 +99,13 @@ plt<span style="color: #666666">.</span>show()
 <span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[no_globals(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import no_globals&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
 <span style="color: #888888">600.506064831</span>
 </pre></div>
-<p>The function is a whooping ~21.79 times faster with this simple speed up (<em>compiled language advocates hate him</em>). The naive version (and mine...) and perhaps the most intuitive runs like this with no globals:</p>
+<p>The function is a whooping ~21.79% faster with this simple speed up (<em>compiled language advocates hate him</em>). The naive version (and mine...) and perhaps the most intuitive runs like this with no globals:</p>
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">naive</span>(n, length<span style="color: #666666">=</span><span style="color: #007020">len</span>, string<span style="color: #666666">=</span><span style="color: #007020">str</span>):
 <span style="color: #c65d09; font-weight: bold">... </span>    <span style="color: #007020; font-weight: bold">return</span> length(string(n))
 <span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[naive(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import naive&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
 <span style="color: #888888">374.48799204826355</span>
 </pre></div>
-<p>Wait, <em>what</em> ? It's faster! It's ~37.64 times faster! I honestly don't know why. Perhaps someone can tell me my benchmarks are wrong, len and str are insanely optimised or that log10 from C somehow is slow.</p>
+<p>Wait, <em>what</em> ? It's faster! It's ~37.64% faster! I honestly don't know why. Perhaps someone can tell me my benchmarks are wrong, len and str are insanely optimised or that log10 from C somehow is slow.</p>
 <p><sup>This post was inspired by <a href='http://www.esologic.com/?p=2518'>Comparing blank string definition in Python3</a>.</sup></p>
 
             </article>
