@@ -105,7 +105,7 @@ def main():
             f.write(html)
 
     with open(OUTPUT_DIR + '/' + 'index' + '.html', 'w+') as f:
-        links = ['<p><a href="{}">{}</a></p>'.format(
+        links = ['<p><a href="{}.html">{}</a></p>'.format(
             filename, title) for filename, title in titles.items()]
         f.write(INDEX_TEMPLATE.format(links=''.join(links)))
 
