@@ -10,7 +10,7 @@ from pygments.styles.friendly import FriendlyStyle
 
 
 POSTS_DIR = os.path.join(os.path.dirname(__file__), 'posts')
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'html')
 
 POST_TEMPLATE = """
 <!DOCTYPE html>
