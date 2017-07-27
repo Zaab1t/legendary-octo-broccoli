@@ -70,15 +70,15 @@ class PostRenderer(mistune.Renderer):
         return super().header(text, level, raw)
 
     def block_code(self, code, lang=None):
-        if lang != 'python':
-            print('lang in code block was not python!!1')
-            return
-        if code.startswith('>>> '):
-            lexer = pygments.lexers.PythonConsoleLexer(python3=True)
-        else:
-            lexer = pygments.lexers.Python3Lexer()
         formatter = pygments.formatters.HtmlFormatter(
             style=self.pygments_style, noclasses=True)
+        if lang == 'python':
+            if code.startswith('>>> '):
+                lexer = pygments.lexers.PythonConsoleLexer(python3=True)
+            else:
+                lexer = pygments.lexers.Python3Lexer()
+        else:
+            lexer = pygments.lexers.find_lexer_class_by_name(lang)()
         return pygments.highlight(code, lexer, formatter)
 
 
