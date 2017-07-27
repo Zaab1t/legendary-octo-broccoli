@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>How to find the length of a natural number in Python</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script async defer src="https://buttons.github.io/buttons.js"></script>
+    </head>
+
+    <body>
+        <h1><strong>How to find the length of a natural number in Python</strong></h1>
+        <a class="github-button" href="https://github.com/Zaab1t"
+        aria-label="Follow @Zaab1t on GitHub">Follow @Zaab1t</a>
+        <hr>
+        <main role="main">
+            <article class="content">
+            <p>My latest (and first!) post <a href="./fast-empty-sequences-in-python.html">Why 'd = {}' is faster than 'd = dict()'</a> sparkled a small debate in our little group. In the article I found <code>len(str(n))</code> to be ~37.64% faster than <code>math.floor(math.log10(n) + 1)</code>. We all knew that <code>len</code> and <code>str</code> are super fast for what they do, but they really shouldn't be faster. So we launched a small mission to find a faster approach than <code>len(str(n))</code>!</p>
+<h2>The fastest floor function</h2>
+<p>First we had to see, if we could improve <code>math.floor</code>. Here is the test data for the functions. It should look like the input we would normally give the functions.</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">timeit</span> <span style="color: #007020; font-weight: bold">import</span> timeit
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">math</span> <span style="color: #007020; font-weight: bold">import</span> log10
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>test_data <span style="color: #666666">=</span> [log10(i)<span style="color: #666666">+</span><span style="color: #40a070">1</span> <span style="color: #007020; font-weight: bold">for</span> i <span style="color: #007020; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #40a070">1</span>, <span style="color: #40a070">10000</span>)]
+</pre></div>
+<h3>Approaches</h3>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">math</span> <span style="color: #007020; font-weight: bold">import</span> floor
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[floor(i) for i in test_data]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import test_data, floor&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">10000</span>) 
+<span style="color: #888888">13.200835741999981</span>
+</pre></div>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[i//1 for i in test_data]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import test_data&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">10000</span>)
+<span style="color: #888888">21.2172878639999</span>
+</pre></div>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[int(i) for i in test_data]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import test_data&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">10000</span>)
+<span style="color: #888888">15.911002503999953</span>
+</pre></div>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">ctypes</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">ctypes.util</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>libm <span style="color: #666666">=</span> ctypes<span style="color: #666666">.</span>CDLL(ctypes<span style="color: #666666">.</span>util<span style="color: #666666">.</span>find_library(<span style="color: #4070a0">&#39;m&#39;</span>))
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>libm<span style="color: #666666">.</span>floor<span style="color: #666666">.</span>argtypes <span style="color: #666666">=</span> [ctypes<span style="color: #666666">.</span>c_double]
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>libm<span style="color: #666666">.</span>floor<span style="color: #666666">.</span>restype <span style="color: #666666">=</span> ctypes<span style="color: #666666">.</span>c_double
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>cfloor <span style="color: #666666">=</span> libm<span style="color: #666666">.</span>floor
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[cfloor(i) for i in test_data]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import test_data, cfloor&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">10000</span>)
+<span style="color: #888888">79.70323026699998</span>
+</pre></div>
+<p>Credits to <a href="https://github.com/PurpleMyst">__Myst__</a> for the integer division. I thought that was very clever. Anyways, that didn't yield anything new. Looks like <code>math.floor</code> is the fastest after all (thank god). What's wrong with our function then? Could <code>math.log10</code> really by the bottleneck?</p>
+<h2>floor(log10) in C</h2>
+<p>This translates into a module called <code>digits</code> with a function also called <code>digits</code> which is equivalent to <code>floor(log10(n) + 1)</code>. Written by __Myst__:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #007020">#include</span> <span style="color: #60a0b0; font-style: italic">&lt;Python.h&gt;</span><span style="color: #007020"></span>
+<span style="color: #007020">#include</span> <span style="color: #60a0b0; font-style: italic">&lt;math.h&gt;</span><span style="color: #007020"></span>
+
+<span style="color: #60a0b0; font-style: italic">// Compilation command:</span>
+<span style="color: #60a0b0; font-style: italic">// clang digits.c -o digits.so -std=c99 -shared -fPIC -I /usr/include/python3.6</span>
+
+<span style="color: #007020; font-weight: bold">static</span> PyObject<span style="color: #666666">*</span>
+<span style="color: #06287e">digits_digits</span>(PyObject <span style="color: #666666">*</span>self, PyObject <span style="color: #666666">*</span>args) {
+    <span style="color: #902000">int</span> num;
+    <span style="color: #007020; font-weight: bold">if</span> (<span style="color: #666666">!</span>PyArg_ParseTuple(args, <span style="color: #4070a0">&quot;i&quot;</span>, <span style="color: #666666">&amp;</span>num)) <span style="color: #007020; font-weight: bold">return</span> <span style="color: #007020">NULL</span>;
+    <span style="color: #007020; font-weight: bold">return</span> PyLong_FromLong(<span style="color: #40a070">1</span> <span style="color: #666666">+</span> floor(log10(num)));
+}
+
+<span style="color: #007020; font-weight: bold">static</span> PyMethodDef digits_methods[] <span style="color: #666666">=</span> {
+    {<span style="color: #4070a0">&quot;digits&quot;</span>,  digits_digits, METH_VARARGS,
+     <span style="color: #4070a0">&quot;Returns the amount of digits in a number.&quot;</span>},
+    {<span style="color: #007020">NULL</span>, <span style="color: #007020">NULL</span>, <span style="color: #40a070">0</span>, <span style="color: #007020">NULL</span>}        <span style="color: #60a0b0; font-style: italic">/* Sentinel */</span>
+};
+
+<span style="color: #007020; font-weight: bold">static</span> <span style="color: #007020; font-weight: bold">struct</span> PyModuleDef digits_module <span style="color: #666666">=</span> {
+   PyModuleDef_HEAD_INIT,
+   <span style="color: #4070a0">&quot;digits&quot;</span>,
+   <span style="color: #007020">NULL</span>,
+   <span style="color: #666666">-</span><span style="color: #40a070">1</span>,
+   digits_methods
+};
+
+PyMODINIT_FUNC
+<span style="color: #06287e">PyInit_digits</span>(<span style="color: #902000">void</span>)
+{
+    <span style="color: #007020; font-weight: bold">return</span> PyModule_Create(<span style="color: #666666">&amp;</span>digits_module);
+}
+</pre></div>
+<h2>A (slightly) different approach</h2>
+<p>Since we didnt find anything gamechanging, I thought we could find an "integer" log10 function, such that it would only need to do a few calculations and so we would not need floor at all. <em><a href="https://stackoverflow.com/questions/25892665/performance-of-log10-function-returning-an-int">Stackoverflow</a> to the rescue!</em></p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #60a0b0; font-style: italic"># By Slava Bacherikow</span>
+table <span style="color: #666666">=</span> [<span style="color: #40a070">10</span><span style="color: #666666">**</span>x <span style="color: #007020; font-weight: bold">for</span> x <span style="color: #007020; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #40a070">1</span>, <span style="color: #40a070">10</span>)]
+<span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">bacherikow</span>(n):
+    <span style="color: #007020; font-weight: bold">for</span> i, k <span style="color: #007020; font-weight: bold">in</span> <span style="color: #007020">enumerate</span>(table):
+        <span style="color: #007020; font-weight: bold">if</span> n <span style="color: #666666">-</span> k <span style="color: #666666">&lt;</span> <span style="color: #40a070">0</span>:
+            <span style="color: #007020; font-weight: bold">return</span> i <span style="color: #666666">+</span> <span style="color: #40a070">1</span>
+
+<span style="color: #60a0b0; font-style: italic"># By Mike Dunlavey</span>
+<span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">dunlavey</span>(n):
+    v <span style="color: #666666">=</span> <span style="color: #40a070">1</span>
+    <span style="color: #007020; font-weight: bold">for</span> h, i <span style="color: #007020; font-weight: bold">in</span> ((<span style="color: #40a070">1e32</span>, <span style="color: #40a070">32</span>), (<span style="color: #40a070">1e16</span>, <span style="color: #40a070">16</span>), (<span style="color: #40a070">1e8</span>, <span style="color: #40a070">8</span>), (<span style="color: #40a070">1e4</span>, <span style="color: #40a070">4</span>), (<span style="color: #40a070">1e2</span>, <span style="color: #40a070">2</span>), (<span style="color: #40a070">1e1</span>, <span style="color: #40a070">1</span>)):
+        <span style="color: #007020; font-weight: bold">if</span> n <span style="color: #666666">&gt;=</span> h:
+            v <span style="color: #666666">+=</span> i
+            n <span style="color: #666666">/=</span> h
+    <span style="color: #007020; font-weight: bold">return</span> v
+
+<span style="color: #60a0b0; font-style: italic"># I also took my own shot at this</span>
+<span style="color: #007020; font-weight: bold">def</span> <span style="color: #06287e">bordum</span>(n, base<span style="color: #666666">=</span><span style="color: #40a070">10</span>):
+    l <span style="color: #666666">=</span> <span style="color: #40a070">1</span>
+    k <span style="color: #666666">=</span> base
+    <span style="color: #007020; font-weight: bold">while</span> n <span style="color: #666666">&gt;=</span> k:
+        k <span style="color: #666666">*=</span> base
+        l <span style="color: #666666">+=</span> <span style="color: #40a070">1</span>
+    <span style="color: #007020; font-weight: bold">return</span> l
+</pre></div>
+<p>Three new functions, that basically only does simple comparisons!</p>
+<h2>Los grandos finalos</h2>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[lenstrn(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import lenstrn&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">435.70669322700087</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[bacherikow(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import bacherikow&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">1088.5965097380013</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[dunlavey(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import dunlavey&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">1225.091471193</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[bordum(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import bordum&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">708.0717394579988</span>
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">digits</span> <span style="color: #007020; font-weight: bold">import</span> digits
+<span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[digits(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import digits&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">235.0519375820004</span>
+</pre></div>
+<p>The C version obviously crushed. I was a little disappointed we couldn't beat <code>lenstrn</code> in pure python. Guess I was wrong to call it naive. On the other hand, it's always nice when the "easiest" is correct (ignoring exceptions etc).</p>
+<blockquote><p>“If you want your code to run faster, you should probably just use PyPy.”
+— Guido van Rossum (creator of Python)</p>
+</blockquote>
+<p><code>bordum</code> was actually the fastest when <a href="https://gist.github.com/PurpleMyst/28dd0c1e84df88ff8854c2775ddff0ac#file-digits-c">written in C</a> at 140.1146736649971, incase you ever need this. Good job <a href="https://github.com/8Banana">team</a> and a huge thanks to __Myst__ :p</p>
+
+            </article>
+        </main>
+    </body>
+
+    <footer>
+        <hr>
+        <p>&copy; 2017 Carl Bordum Hansen</p>
+        <p>Contact: <a href="mailto:carl@bordum.dk">carl@bordum.dk</a></p>
+    </footer>
+</html>

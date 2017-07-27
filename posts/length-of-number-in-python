@@ -1,0 +1,137 @@
+# How to find the length of a natural number in Python
+
+My latest (and first!) post [Why 'd = {}' is faster than 'd = dict()'](./fast-empty-sequences-in-python.html) sparkled a small debate in our little group. In the article I found `len(str(n))` to be ~37.64% faster than `math.floor(math.log10(n) + 1)`. We all knew that `len` and `str` are super fast for what they do, but they really shouldn't be faster. So we launched a small mission to find a faster approach than `len(str(n))`!
+
+
+## The fastest floor function
+First we had to see, if we could improve `math.floor`. Here is the test data for the functions. It should look like the input we would normally give the functions.
+
+``` python
+>>> from timeit import timeit
+>>> from math import log10
+>>> test_data = [log10(i)+1 for i in range(1, 10000)]
+```
+
+### Approaches
+``` python
+>>> from math import floor
+>>> timeit('[floor(i) for i in test_data]', setup='from __main__ import test_data, floor', number=10000) 
+13.200835741999981
+```
+
+``` python
+>>> timeit('[i//1 for i in test_data]', setup='from __main__ import test_data', number=10000)
+21.2172878639999
+```
+
+``` python
+>>> timeit('[int(i) for i in test_data]', setup='from __main__ import test_data', number=10000)
+15.911002503999953
+```
+
+``` python
+>>> import ctypes
+>>> import ctypes.util
+>>> libm = ctypes.CDLL(ctypes.util.find_library('m'))
+>>> libm.floor.argtypes = [ctypes.c_double]
+>>> libm.floor.restype = ctypes.c_double
+>>> cfloor = libm.floor
+>>> timeit('[cfloor(i) for i in test_data]', setup='from __main__ import test_data, cfloor', number=10000)
+79.70323026699998
+```
+
+Credits to [\__Myst__](https://github.com/PurpleMyst) for the integer division. I thought that was very clever. Anyways, that didn't yield anything new. Looks like `math.floor` is the fastest after all (thank god). What's wrong with our function then? Could `math.log10` really by the bottleneck?
+
+
+## floor(log10) in C
+This translates into a module called `digits` with a function also called `digits` which is equivalent to `floor(log10(n) + 1)`. Written by \__Myst__:
+``` c
+#include <Python.h>
+#include <math.h>
+
+// Compilation command:
+// clang digits.c -o digits.so -std=c99 -shared -fPIC -I /usr/include/python3.6
+
+static PyObject*
+digits_digits(PyObject *self, PyObject *args) {
+    int num;
+    if (!PyArg_ParseTuple(args, "i", &num)) return NULL;
+    return PyLong_FromLong(1 + floor(log10(num)));
+}
+
+static PyMethodDef digits_methods[] = {
+    {"digits",  digits_digits, METH_VARARGS,
+     "Returns the amount of digits in a number."},
+    {NULL, NULL, 0, NULL}        /* Sentinel */
+};
+
+static struct PyModuleDef digits_module = {
+   PyModuleDef_HEAD_INIT,
+   "digits",
+   NULL,
+   -1,
+   digits_methods
+};
+
+PyMODINIT_FUNC
+PyInit_digits(void)
+{
+    return PyModule_Create(&digits_module);
+}
+```
+
+
+## A (slightly) different approach
+Since we didnt find anything gamechanging, I thought we could find an "integer" log10 function, such that it would only need to do a few calculations and so we would not need floor at all. *[Stackoverflow](https://stackoverflow.com/questions/25892665/performance-of-log10-function-returning-an-int) to the rescue!*
+
+``` python
+# By Slava Bacherikow
+table = [10**x for x in range(1, 10)]
+def bacherikow(n):
+    for i, k in enumerate(table):
+        if n - k < 0:
+            return i + 1
+
+# By Mike Dunlavey
+def dunlavey(n):
+    v = 1
+    for h, i in ((1e32, 32), (1e16, 16), (1e8, 8), (1e4, 4), (1e2, 2), (1e1, 1)):
+        if n >= h:
+            v += i
+            n /= h
+    return v
+
+# I also took my own shot at this
+def bordum(n, base=10):
+    l = 1
+    k = base
+    while n >= k:
+        k *= base
+        l += 1
+    return l
+```
+
+Three new functions, that basically only does simple comparisons!
+
+
+## Los grandos finalos
+``` python
+>>> timeit('[lenstrn(i) for i in range(1, 1111111)]', setup='from __main__ import lenstrn', number=1000)
+435.70669322700087
+>>> timeit('[bacherikow(i) for i in range(1, 1111111)]', setup='from __main__ import bacherikow', number=1000)
+1088.5965097380013
+>>> timeit('[dunlavey(i) for i in range(1, 1111111)]', setup='from __main__ import dunlavey', number=1000)
+1225.091471193
+>>> timeit('[bordum(i) for i in range(1, 1111111)]', setup='from __main__ import bordum', number=1000)
+708.0717394579988
+>>> from digits import digits
+>>> timeit('[digits(i) for i in range(1, 1111111)]', setup='from __main__ import digits', number=1000)
+235.0519375820004
+```
+
+The C version obviously crushed. I was a little disappointed we couldn't beat `lenstrn` in pure python. Guess I was wrong to call it naive. On the other hand, it's always nice when the "easiest" is correct (ignoring exceptions etc).
+
+> “If you want your code to run faster, you should probably just use PyPy.”
+> — Guido van Rossum (creator of Python)
+
+`bordum` was actually the fastest when [written in C](https://gist.github.com/PurpleMyst/28dd0c1e84df88ff8854c2775ddff0ac#file-digits-c) at 140.1146736649971, incase you ever need this. Good job [team](https://github.com/8Banana) and a huge thanks to \__Myst__ :p
