@@ -1,10 +1,10 @@
 # How to find the length of a natural number in Python
 
-My latest (and first!) post [Why 'd = {}' is faster than 'd = dict()'](./fast-empty-sequences-in-python.html) sparkled a small debate in our little group. In the article I found `len(str(n))` to be ~37.64% faster than `math.floor(math.log10(n) + 1)`. We all knew that `len` and `str` are super fast for what they do, but they really shouldn't be faster. So we launched a small mission to find a faster approach than `len(str(n))`!
+My latest (and first!) post [Why 'd = {}' is faster than 'd = dict()'](./fast-empty-sequences-in-python.html) sparkled a small debate in our group. In the article I found `len(str(n))` to be ~37.64% faster than `math.floor(math.log10(n) + 1)`. We all knew that `len` and `str` are super fast for what they do, but they really shouldn't be faster. So we launched a small mission to find a faster approach than `len(str(n))`!
 
 
 ## The fastest floor function
-First we had to see, if we could improve `math.floor`. Here is the test data for the functions. It should look like the input we would normally give the functions.
+First we had to see if we could improve `math.floor`. I generated test data that looks like what we normally would call the functions with:
 
 ``` python
 >>> from timeit import timeit
@@ -40,12 +40,13 @@ First we had to see, if we could improve `math.floor`. Here is the test data for
 79.70323026699998
 ```
 
-Credits to [\__Myst__](https://github.com/PurpleMyst) for the integer division. I thought that was very clever. Anyways, that didn't yield anything new. Looks like `math.floor` is the fastest after all (thank god). What's wrong with our function then? Could `math.log10` really by the bottleneck?
+Credits to [\__Myst__](https://github.com/PurpleMyst) for the integer division. I thought that was very clever. Anyways, that didn't yield anything new. Looks like `math.floor` is the fastest after all (thank god). What's wrong with `math.floor(math.log10(n) + 1)` then? Could `math.log10` really by the bottleneck?
 
 
 ## floor(log10) in C
-This translates into a module called `digits` with a function also called `digits` which is equivalent to `floor(log10(n) + 1)`. Written by \__Myst__:
+This translates into a module called `digits` with a function also called `digits` which is equivalent to `floor(log10(n) + 1)`:
 ``` c
+// Author: __Myst__
 #include <Python.h>
 #include <math.h>
 
@@ -111,7 +112,7 @@ def bordum(n, base=10):
     return l
 ```
 
-Three new functions, that basically only does simple comparisons!
+Three new functions, that basically only do simple comparisons!
 
 
 ## Los grandos finalos
@@ -129,9 +130,14 @@ Three new functions, that basically only does simple comparisons!
 235.0519375820004
 ```
 
-The C version obviously crushed. I was a little disappointed we couldn't beat `lenstrn` in pure python. Guess I was wrong to call it naive. On the other hand, it's always nice when the "easiest" is correct (ignoring exceptions etc).
+The C version obviously crushed. I was a little disappointed we couldn't beat `lenstrn` in pure python. Guess I was wrong to call it naive. On the other hand, it's always nice when the "easiest" is correct (ignoring exceptions etc). Later we implemented [`bordum` in C](https://gist.github.com/PurpleMyst/28dd0c1e84df88ff8854c2775ddff0ac#file-digits-c) and it ran much faster.
+
+``` python
+>>> timeit('[cbordum(i) for i in range(1, 1111111)]' setup='from __main__ import cbordum', number=1000)
+140.1146736649971
+```
 
 > “If you want your code to run faster, you should probably just use PyPy.”
 > — Guido van Rossum (creator of Python)
 
-`bordum` was actually the fastest when [written in C](https://gist.github.com/PurpleMyst/28dd0c1e84df88ff8854c2775ddff0ac#file-digits-c) at 140.1146736649971, incase you ever need this. Good job [team](https://github.com/8Banana) and a huge thanks to \__Myst__ :p
+Good job [team](https://github.com/8Banana) and a huge thanks to \__Myst__ :p

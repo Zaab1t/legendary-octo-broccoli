@@ -15,9 +15,9 @@
         <hr>
         <main role="main">
             <article class="content">
-            <p>My latest (and first!) post <a href="./fast-empty-sequences-in-python.html">Why 'd = {}' is faster than 'd = dict()'</a> sparkled a small debate in our little group. In the article I found <code>len(str(n))</code> to be ~37.64% faster than <code>math.floor(math.log10(n) + 1)</code>. We all knew that <code>len</code> and <code>str</code> are super fast for what they do, but they really shouldn't be faster. So we launched a small mission to find a faster approach than <code>len(str(n))</code>!</p>
+            <p>My latest (and first!) post <a href="./fast-empty-sequences-in-python.html">Why 'd = {}' is faster than 'd = dict()'</a> sparkled a small debate in our group. In the article I found <code>len(str(n))</code> to be ~37.64% faster than <code>math.floor(math.log10(n) + 1)</code>. We all knew that <code>len</code> and <code>str</code> are super fast for what they do, but they really shouldn't be faster. So we launched a small mission to find a faster approach than <code>len(str(n))</code>!</p>
 <h2>The fastest floor function</h2>
-<p>First we had to see, if we could improve <code>math.floor</code>. Here is the test data for the functions. It should look like the input we would normally give the functions.</p>
+<p>First we had to see if we could improve <code>math.floor</code>. I generated test data that looks like what we normally would call the functions with:</p>
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">timeit</span> <span style="color: #007020; font-weight: bold">import</span> timeit
 <span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span><span style="color: #007020; font-weight: bold">from</span> <span style="color: #0e84b5; font-weight: bold">math</span> <span style="color: #007020; font-weight: bold">import</span> log10
 <span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>test_data <span style="color: #666666">=</span> [log10(i)<span style="color: #666666">+</span><span style="color: #40a070">1</span> <span style="color: #007020; font-weight: bold">for</span> i <span style="color: #007020; font-weight: bold">in</span> <span style="color: #007020">range</span>(<span style="color: #40a070">1</span>, <span style="color: #40a070">10000</span>)]
@@ -42,10 +42,11 @@
 <span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[cfloor(i) for i in test_data]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import test_data, cfloor&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">10000</span>)
 <span style="color: #888888">79.70323026699998</span>
 </pre></div>
-<p>Credits to <a href="https://github.com/PurpleMyst">__Myst__</a> for the integer division. I thought that was very clever. Anyways, that didn't yield anything new. Looks like <code>math.floor</code> is the fastest after all (thank god). What's wrong with our function then? Could <code>math.log10</code> really by the bottleneck?</p>
+<p>Credits to <a href="https://github.com/PurpleMyst">__Myst__</a> for the integer division. I thought that was very clever. Anyways, that didn't yield anything new. Looks like <code>math.floor</code> is the fastest after all (thank god). What's wrong with <code>math.floor(math.log10(n) + 1)</code> then? Could <code>math.log10</code> really by the bottleneck?</p>
 <h2>floor(log10) in C</h2>
-<p>This translates into a module called <code>digits</code> with a function also called <code>digits</code> which is equivalent to <code>floor(log10(n) + 1)</code>. Written by __Myst__:</p>
-<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #007020">#include</span> <span style="color: #60a0b0; font-style: italic">&lt;Python.h&gt;</span><span style="color: #007020"></span>
+<p>This translates into a module called <code>digits</code> with a function also called <code>digits</code> which is equivalent to <code>floor(log10(n) + 1)</code>:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #60a0b0; font-style: italic">// Author: __Myst__</span>
+<span style="color: #007020">#include</span> <span style="color: #60a0b0; font-style: italic">&lt;Python.h&gt;</span><span style="color: #007020"></span>
 <span style="color: #007020">#include</span> <span style="color: #60a0b0; font-style: italic">&lt;math.h&gt;</span><span style="color: #007020"></span>
 
 <span style="color: #60a0b0; font-style: italic">// Compilation command:</span>
@@ -105,7 +106,7 @@ table <span style="color: #666666">=</span> [<span style="color: #40a070">10</sp
         l <span style="color: #666666">+=</span> <span style="color: #40a070">1</span>
     <span style="color: #007020; font-weight: bold">return</span> l
 </pre></div>
-<p>Three new functions, that basically only does simple comparisons!</p>
+<p>Three new functions, that basically only do simple comparisons!</p>
 <h2>Los grandos finalos</h2>
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[lenstrn(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import lenstrn&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
 <span style="color: #888888">435.70669322700087</span>
@@ -119,11 +120,14 @@ table <span style="color: #666666">=</span> [<span style="color: #40a070">10</sp
 <span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[digits(i) for i in range(1, 1111111)]&#39;</span>, setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import digits&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
 <span style="color: #888888">235.0519375820004</span>
 </pre></div>
-<p>The C version obviously crushed. I was a little disappointed we couldn't beat <code>lenstrn</code> in pure python. Guess I was wrong to call it naive. On the other hand, it's always nice when the "easiest" is correct (ignoring exceptions etc).</p>
+<p>The C version obviously crushed. I was a little disappointed we couldn't beat <code>lenstrn</code> in pure python. Guess I was wrong to call it naive. On the other hand, it's always nice when the "easiest" is correct (ignoring exceptions etc). Later we implemented <a href="https://gist.github.com/PurpleMyst/28dd0c1e84df88ff8854c2775ddff0ac#file-digits-c"><code>bordum</code> in C</a> and it ran much faster.</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #c65d09; font-weight: bold">&gt;&gt;&gt; </span>timeit(<span style="color: #4070a0">&#39;[cbordum(i) for i in range(1, 1111111)]&#39;</span> setup<span style="color: #666666">=</span><span style="color: #4070a0">&#39;from __main__ import cbordum&#39;</span>, number<span style="color: #666666">=</span><span style="color: #40a070">1000</span>)
+<span style="color: #888888">140.1146736649971</span>
+</pre></div>
 <blockquote><p>“If you want your code to run faster, you should probably just use PyPy.”
 — Guido van Rossum (creator of Python)</p>
 </blockquote>
-<p><code>bordum</code> was actually the fastest when <a href="https://gist.github.com/PurpleMyst/28dd0c1e84df88ff8854c2775ddff0ac#file-digits-c">written in C</a> at 140.1146736649971, incase you ever need this. Good job <a href="https://github.com/8Banana">team</a> and a huge thanks to __Myst__ :p</p>
+<p>Good job <a href="https://github.com/8Banana">team</a> and a huge thanks to __Myst__ :p</p>
 
             </article>
         </main>
