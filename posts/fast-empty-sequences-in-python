@@ -112,4 +112,6 @@ The function is a whooping ~21.79% faster with this simple speed up (*compiled l
 
 Wait, *what* ? It's faster! It's ~37.64% faster! I honestly don't know why. Perhaps someone can tell me my benchmarks are wrong, len and str are insanely optimised or that log10 from C somehow is slow.
 
+Read part 2: [How to find the length of a natural number in Python](./length-of-number-in-python.html).
+
 <sup>This post was inspired by <a href='http://www.esologic.com/?p=2518'>Comparing blank string definition in Python3</a>.</sup>
