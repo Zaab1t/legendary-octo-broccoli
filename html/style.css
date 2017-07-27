@@ -37,13 +37,13 @@ h1, h2, h3, h4, h5 {
 }
 
 h1 {
-	font-size: 2.5em;
+	font-size: 2.2em;
 }
 
 p {
 	font-weight: 400;
 	font-style: normal;
-	font-size: 1.1em;
+	font-size: 1em;
 	line-height: 30px;
 	text-align: justify;
 	margin: 0;
@@ -61,7 +61,7 @@ footer p {
 
 .highlight {
 	padding: 1em;
-	font-size: 1.05em;
+	font-size: 1em;
 	overflow: scroll;
 	margin: 0px 0px 30px 0px;
 	font-family: monospace;
