@@ -81,7 +81,7 @@ The dis module disassembles CPython bytecode. What you see in all caps are the o
 
 So when you call `str()`, `list()`, `dict()` or `tuple()` Python has to do two things: first load the global function, second call the function (and that function then has to execute). However, when you use the shothands, Python only has to call a fast opcode like `LOAD_CONST` or `BUILD_MAP`.
 
-What can we learn from this? `LOAD_GLOBAL` is slow because it first has to check for the function (in this case) in the local namespace, then in the module namespace and lastly the global (builtin) namespace. This means, that if you have some code that loads multiple globals and you have to call it hundred of thousands of times, you can try to avoid the globals before opting for Cython, C, Rust or whatever is cool tomorrow (you should check out [PyPy](https://pypy.org).
+What can we learn from this? `LOAD_GLOBAL` is slow because it first has to check for the function (in this case) in the local namespace, then in the module namespace and lastly the global (builtin) namespace. This means, that if you have some code that loads multiple globals and you have to call it hundred of thousands of times, you can try to avoid the globals before opting for Cython, C, Rust or whatever is cool tomorrow (you should check out [PyPy](https://pypy.org)).
 
 Not too long ago I had a discussion with [Akuli](https://github.com/Akuli) about the fastest way to compute the length (number of digits) of a natural number (`f(1)=1`, `f(2)=1`, `f(101)=3`). Akuli was smarter than me and suggested using log10. Here I compare how eliminating global scope affects the running time:
 
