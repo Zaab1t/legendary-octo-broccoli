@@ -1,0 +1,119 @@
+# Logging in Python : the definitive guide
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+
+## MOTIVATION
+Logging is a very simple concept, yet we somehow managed to make it ridicously hard to grasp for newcomers. This has spiraled to extend the documentation with a basic tutorial, an advanced tutorial and the "Logging Cookbook". Somehow, people are still confussed after reading these, so I thought I'd write my own tutorial.
+
+[![credits to xkcd.com](https://imgs.xkcd.com/comics/standards.png)](https://xkcd.com/927/)
+
+In this tutorial I will take a slighty unusual approach. I will tell you **this is how you do it** and not talk about corner cases and very advanced usage. The goal with this approach is to avoid doubt and ambiguity. Most programmers should never need more than what I present in this writeup, but for advanced usage you should refer to the [official documentation](https://docs.python.org/3/library/logging.html). Let's get started.
+
+
+## THE BASICS
+
+You have almost definitely used some package that does logging. How come you've never seen the output? That's because it's going nowhere. You should always direct you log at `stdout`. This let's the developer debug code without spamming print statements and in production you can handle the logs with a logrouter (much like the unix program `tail`).
+
+``` python
+# basic.py
+import sys
+import logging
+import requests
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+requests.get('https://httpbin.org/html')
+```
+
+Normally a get request wouldn't produce any output, but I've aimed my log at `stdout` here. Let's run it. 
+
+``` bash
+$ python3 basic.py
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): httpbin.org
+DEBUG:urllib3.connectionpool:https://httpbin.org:443 "GET /html HTTP/1.1" 200 3741
+```
+
+And there's the output! You might have noticed that I set the level to `DEBUG`. There are five logging levels; `DEBUG`, `INFO`, `WARNING`, `ERROR` and `CRITICAL`. You should always set it to `DEBUG`, but if you don't care about logs from a particular package you can raise its' level::
+
+``` python
+logging.getLogger('urllib3').setLevel(logging.INFO)
+```
+
+Unsure about what the different logging levels mean? Dylan Beattie sums it up nicely:
+
+<blockquote class="twitter-tweet" data-lang="da">
+<p lang="en" dir="ltr">One of the biggest challenges with centralized logging is establishing consensus about what log levels actually mean. Here&#39;s a quick primer.
+<a href="https://t.co/5UeFnfiq1h"><img src="pic.twitter.com/5UeFnfiq1h"></a>
+</p>&mdash; Dylan Beattie 🇪🇺 (@dylanbeattie)
+<a href="https://twitter.com/dylanbeattie/status/887650814696804352">19. juli 2017</a>
+</blockquote>
+
+Okay, so we understand log levels and the basic configuration. How do we send log messages? It's fairly simple. At the top level of your file, you include the line:
+
+``` python
+log = logging.getLogger(__name__)
+```
+
+And then elsewhere in the same file you simply type:
+
+``` python
+log.debug('called deliver with args %s and %s', a, b)
+log.critial('the pizza was not delivered')
+```
+
+## IN A LIBRARY
+If you are writing a library (some program that other programs import) you should not do any logging configuration. Simply log your messages.
+
+
+## IN A PROGRAM
+On the other hand, if you are writting a program that does __not__ get imported anywhere else, now is the time to configure `logging`. In your `__init__.py` (or your only file, if it's a single file script) you should include this:
+
+``` python
+import sys
+import logging
+
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+)
+
+logging.getLogger('somelib').setLevel(logging.INFO)
+logging.getLogger('otherlib').setLevel(logging.INFO)
+# etc
+```
+
+You see that I have also changed the format here. You can see how this affects the output in next example. Refer to [this](https://docs.python.org/3/library/logging.html#logrecord-attributes) table, when changing output format.
+
+## WHEN HANDLING EXCEPTIONS
+When you log from an `except` block, you can include the exception in your output if you set the named parameter `exc_info` to `True`.
+
+``` python
+try:
+    return pizza['sauce']
+except KeyError:
+    log.debug('Pizza: %s', pizza)
+    log.warning('No sauce on pizza!', exc_info=True)
+log.debug("I'm still running")
+```
+
+Which will give an output that looks somewhat like this:
+
+``` bash
+2017-08-01 18:20:48,981 - __main__ - DEBUG - Pizza: {'type': 'deep pan', 'cheese': 'parmasan'}
+2017-08-01 18:20:48,982 - __main__ - WARNING - No sauce on pizza!
+Traceback (most recent call last):
+  File "example2.py", line 14, in <module>
+    pizza['sauce']
+KeyError: 'sauce'
+2017-08-01 18:20:48,982 - __main__ - DEBUG - I'm still running
+```
+
+## IN A CLASS
+This is just a tip, but there is a more general method `log.log` that takes a level as the first parameter. This means that you can have instances of the same class that logs with different importance:
+
+``` python
+log.log(self.level, 'the level of this message may vary and contain %s', 'peanuts')
+```
+
+
+That's it. Basically all there is to logging. I hope that wasn't too bad. And I hope you learned something new :)

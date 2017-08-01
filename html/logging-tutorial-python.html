@@ -1,0 +1,106 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Logging in Python : the definitive guide</title>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+
+    <body>
+        <h1><strong>Logging in Python : the definitive guide</strong></h1>
+        <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="https://github.com/Zaab1t">Github</a></li>
+            <li><a href="https://i.redd.it/bka1gb843z7z.jpg">Linkedin</a></li>
+            <li><a href="https://www.reddit.com/domain/blog.bordum.dk/">Discussion</a></li>
+        </ul>
+        <main role="main">
+            <article class="content">
+            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script><h2>MOTIVATION</h2>
+<p>Logging is a very simple concept, yet we somehow managed to make it ridicously hard to grasp for newcomers. This has spiraled to extend the documentation with a basic tutorial, an advanced tutorial and the "Logging Cookbook". Somehow, people are still confussed after reading these, so I thought I'd write my own tutorial.</p>
+<p><a href="https://xkcd.com/927/"><img src="https://imgs.xkcd.com/comics/standards.png" alt="credits to xkcd.com"></a></p>
+<p>In this tutorial I will take a slighty unusual approach. I will tell you <strong>this is how you do it</strong> and not talk about corner cases and very advanced usage. The goal with this approach is to avoid doubt and ambiguity. Most programmers should never need more than what I present in this writeup, but for advanced usage you should refer to the <a href="https://docs.python.org/3/library/logging.html">official documentation</a>. Let's get started.</p>
+<h2>THE BASICS</h2>
+<p>You have almost definitely used some package that does logging. How come you've never seen the output? That's because it's going nowhere. You should always direct you log at <code>stdout</code>. This let's the developer debug code without spamming print statements and in production you can handle the logs with a logrouter (much like the unix program <code>tail</code>).</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #60a0b0; font-style: italic"># basic.py</span>
+<span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">sys</span>
+<span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">logging</span>
+<span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">requests</span>
+
+logging<span style="color: #666666">.</span>basicConfig(stream<span style="color: #666666">=</span>sys<span style="color: #666666">.</span>stdout, level<span style="color: #666666">=</span>logging<span style="color: #666666">.</span>DEBUG)
+requests<span style="color: #666666">.</span>get(<span style="color: #4070a0">&#39;https://httpbin.org/html&#39;</span>)
+</pre></div>
+<p>Normally a get request wouldn't produce any output, but I've aimed my log at <code>stdout</code> here. Let's run it.</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>$ python3 basic.py
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection <span style="color: #666666">(</span><span style="color: #40a070">1</span><span style="color: #666666">)</span>: httpbin.org
+DEBUG:urllib3.connectionpool:https://httpbin.org:443 <span style="color: #4070a0">&quot;GET /html HTTP/1.1&quot;</span> <span style="color: #40a070">200</span> <span style="color: #40a070">3741</span>
+</pre></div>
+<p>And there's the output! You might have noticed that I set the level to <code>DEBUG</code>. There are five logging levels; <code>DEBUG</code>, <code>INFO</code>, <code>WARNING</code>, <code>ERROR</code> and <code>CRITICAL</code>. You should always set it to <code>DEBUG</code>, but if you don't care about logs from a particular package you can raise its' level::</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>logging<span style="color: #666666">.</span>getLogger(<span style="color: #4070a0">&#39;urllib3&#39;</span>)<span style="color: #666666">.</span>setLevel(logging<span style="color: #666666">.</span>INFO)
+</pre></div>
+<p>Unsure about what the different logging levels mean? Dylan Beattie sums it up nicely:</p>
+<blockquote class="twitter-tweet" data-lang="da">
+<p lang="en" dir="ltr">One of the biggest challenges with centralized logging is establishing consensus about what log levels actually mean. Here&#39;s a quick primer.
+<a href="https://t.co/5UeFnfiq1h"><img src="pic.twitter.com/5UeFnfiq1h"></a>
+</p>&mdash; Dylan Beattie 🇪🇺 (@dylanbeattie)
+<a href="https://twitter.com/dylanbeattie/status/887650814696804352">19. juli 2017</a>
+</blockquote><p>Okay, so we understand log levels and the basic configuration. How do we send log messages? It's fairly simple. At the top level of your file, you include the line:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>log <span style="color: #666666">=</span> logging<span style="color: #666666">.</span>getLogger(<span style="color: #bb60d5">__name__</span>)
+</pre></div>
+<p>And then elsewhere in the same file you simply type:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>log<span style="color: #666666">.</span>debug(<span style="color: #4070a0">&#39;called deliver with args </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0"> and </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0">&#39;</span>, a, b)
+log<span style="color: #666666">.</span>critial(<span style="color: #4070a0">&#39;the pizza was not delivered&#39;</span>)
+</pre></div>
+<h2>IN A LIBRARY</h2>
+<p>If you are writing a library (some program that other programs import) you should not do any logging configuration. Simply log your messages.</p>
+<h2>IN A PROGRAM</h2>
+<p>On the other hand, if you are writting a program that does <strong>not</strong> get imported anywhere else, now is the time to configure <code>logging</code>. In your <code>__init__.py</code> (or your only file, if it's a single file script) you should include this:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">sys</span>
+<span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">logging</span>
+
+logging<span style="color: #666666">.</span>basicConfig(
+    stream<span style="color: #666666">=</span>sys<span style="color: #666666">.</span>stdout,
+    level<span style="color: #666666">=</span>logging<span style="color: #666666">.</span>DEBUG,
+    <span style="color: #007020">format</span><span style="color: #666666">=</span><span style="color: #4070a0">&#39;</span><span style="color: #70a0d0; font-style: italic">%(asctime)s</span><span style="color: #4070a0"> - </span><span style="color: #70a0d0; font-style: italic">%(name)s</span><span style="color: #4070a0"> - </span><span style="color: #70a0d0; font-style: italic">%(levelname)s</span><span style="color: #4070a0"> - </span><span style="color: #70a0d0; font-style: italic">%(message)s</span><span style="color: #4070a0">&#39;</span>,
+)
+
+logging<span style="color: #666666">.</span>getLogger(<span style="color: #4070a0">&#39;somelib&#39;</span>)<span style="color: #666666">.</span>setLevel(logging<span style="color: #666666">.</span>INFO)
+logging<span style="color: #666666">.</span>getLogger(<span style="color: #4070a0">&#39;otherlib&#39;</span>)<span style="color: #666666">.</span>setLevel(logging<span style="color: #666666">.</span>INFO)
+<span style="color: #60a0b0; font-style: italic"># etc</span>
+</pre></div>
+<p>You see that I have also changed the format here. You can see how this affects the output in next example. Refer to <a href="https://docs.python.org/3/library/logging.html#logrecord-attributes">this</a> table, when changing output format.</p>
+<h2>WHEN HANDLING EXCEPTIONS</h2>
+<p>When you log from an <code>except</code> block, you can include the exception in your output if you set the named parameter <code>exc_info</code> to <code>True</code>.</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #007020; font-weight: bold">try</span>:
+    <span style="color: #007020; font-weight: bold">return</span> pizza[<span style="color: #4070a0">&#39;sauce&#39;</span>]
+<span style="color: #007020; font-weight: bold">except</span> <span style="color: #007020">KeyError</span>:
+    log<span style="color: #666666">.</span>debug(<span style="color: #4070a0">&#39;Pizza: </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0">&#39;</span>, pizza)
+    log<span style="color: #666666">.</span>warning(<span style="color: #4070a0">&#39;No sauce on pizza!&#39;</span>, exc_info<span style="color: #666666">=</span><span style="color: #007020; font-weight: bold">True</span>)
+log<span style="color: #666666">.</span>debug(<span style="color: #4070a0">&quot;I&#39;m still running&quot;</span>)
+</pre></div>
+<p>Which will give an output that looks somewhat like this:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #40a070">2017</span>-08-01 <span style="color: #40a070">18</span>:20:48,981 - __main__ - DEBUG - Pizza: <span style="color: #666666">{</span><span style="color: #4070a0">&#39;type&#39;</span>: <span style="color: #4070a0">&#39;deep pan&#39;</span>, <span style="color: #4070a0">&#39;cheese&#39;</span>: <span style="color: #4070a0">&#39;parmasan&#39;</span><span style="color: #666666">}</span>
+<span style="color: #40a070">2017</span>-08-01 <span style="color: #40a070">18</span>:20:48,982 - __main__ - WARNING - No sauce on pizza!
+Traceback <span style="color: #666666">(</span>most recent call last<span style="color: #666666">)</span>:
+  File <span style="color: #4070a0">&quot;example2.py&quot;</span>, line <span style="color: #40a070">14</span>, in &lt;module&gt;
+    pizza<span style="color: #666666">[</span><span style="color: #4070a0">&#39;sauce&#39;</span><span style="color: #666666">]</span>
+KeyError: <span style="color: #4070a0">&#39;sauce&#39;</span>
+<span style="color: #40a070">2017</span>-08-01 <span style="color: #40a070">18</span>:20:48,982 - __main__ - DEBUG - I<span style="border: 1px solid #FF0000">&#39;</span>m still running
+</pre></div>
+<h2>IN A CLASS</h2>
+<p>This is just a tip, but there is a more general method <code>log.log</code> that takes a level as the first parameter. This means that you can have instances of the same class that logs with different importance:</p>
+<div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>log<span style="color: #666666">.</span>log(<span style="color: #007020">self</span><span style="color: #666666">.</span>level, <span style="color: #4070a0">&#39;the level of this message may vary and contain </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0">&#39;</span>, <span style="color: #4070a0">&#39;peanuts&#39;</span>)
+</pre></div>
+<p>That's it. Basically all there is to logging. I hope that wasn't too bad. And I hope you learned something new :)</p>
+
+            </article>
+        </main>
+    </body>
+
+    <footer>
+        <hr>
+        <p>&copy; 2017 Carl Bordum Hansen</p>
+        <p>Contact: <img src="./email.svg"></p>
+    </footer>
+</html>
