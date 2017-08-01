@@ -7,6 +7,32 @@ body {
 	color: #333;
 }
 
+ul {
+	list-style-type: none;
+	margin: 0;
+	margin-top: 2em;
+	padding: 0;
+	overflow: hidden;
+	background-color: #333;
+}
+
+li {
+	display: inline;
+	margin: 0 auto;
+}
+
+li a {
+	display: inline-block;
+	color: white;
+	text-align: center;
+	padding: 14px 16px;
+	text-decoration: none;
+}
+
+li a:hover {
+	background-color: #111;
+}
+
 main {
 	width: 100%;
 	margin: 0 auto;
@@ -75,4 +101,9 @@ sup {
 code {
 	background: #f0f0f0;
 	font-size: 0.9em;
+}
+
+img {
+	display:block;
+	margin: auto;
 }

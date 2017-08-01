@@ -19,14 +19,16 @@ POST_TEMPLATE = """
         <meta charset="UTF-8">
         <title>{title}</title>
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script async defer src="https://buttons.github.io/buttons.js"></script>
     </head>
 
     <body>
         <h1><strong>{title}</strong></h1>
-        <a class="github-button" href="https://github.com/Zaab1t"
-        aria-label="Follow @Zaab1t on GitHub">Follow @Zaab1t</a>
-        <hr>
+        <ul>
+            <li><a href="./index.html">Home</a></li>
+            <li><a href="https://github.com/Zaab1t">Github</a></li>
+            <li><a href="https://i.redd.it/bka1gb843z7z.jpg">Linkedin</a></li>
+            <li><a href="https://www.reddit.com/domain/blog.bordum.dk/">Discussion</a></li>
+        </ul>
         <main role="main">
             <article class="content">
             {content}
