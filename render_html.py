@@ -39,7 +39,7 @@ POST_TEMPLATE = """
     <footer>
         <hr>
         <p>&copy; {year} Carl Bordum Hansen</p>
-        <p>Contact: <a href="mailto:carl@bordum.dk">carl@bordum.dk</a></p>
+        <p>Contact: <img src="./email.svg"></p>
     </footer>
 </html>
 """
