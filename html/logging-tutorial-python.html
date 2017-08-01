@@ -18,11 +18,11 @@
         <main role="main">
             <article class="content">
             <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script><h2>MOTIVATION</h2>
-<p>Logging is a very simple concept, yet we somehow managed to make it ridicously hard to grasp for newcomers. This has spiraled to extend the documentation with a basic tutorial, an advanced tutorial and the "Logging Cookbook". Somehow, people are still confussed after reading these, so I thought I'd write my own tutorial.</p>
-<p><a href="https://xkcd.com/927/"><img src="https://imgs.xkcd.com/comics/standards.png" alt="credits to xkcd.com"></a></p>
-<p>In this tutorial I will take a slighty unusual approach. I will tell you <strong>this is how you do it</strong> and not talk about corner cases and very advanced usage. The goal with this approach is to avoid doubt and ambiguity. Most programmers should never need more than what I present in this writeup, but for advanced usage you should refer to the <a href="https://docs.python.org/3/library/logging.html">official documentation</a>. Let's get started.</p>
+<p>Logging is a very simple concept, yet we managed to make it ridiculously hard to grasp for newcomers. This has spiraled to extend the documentation with a basic tutorial, an advanced tutorial and the "Logging Cookbook". Somehow, people are still confused after reading these, so I thought I'd write my own tutorial.</p>
+<p><a href="https://xkcd.com/927/" title="Taken from xkcd.com - check it out"><img src="https://imgs.xkcd.com/comics/standards.png" alt="xkcd comic"></a></p>
+<p>In this tutorial I will tell you what to do and how to do it. Most programmers should never need more than what I present in this writeup, but for advanced usage you should refer to the <a href="https://docs.python.org/3/library/logging.html">official documentation</a>. Let's get started.</p>
 <h2>THE BASICS</h2>
-<p>You have almost definitely used some package that does logging. How come you've never seen the output? That's because it's going nowhere. You should always direct you log at <code>stdout</code>. This let's the developer debug code without spamming print statements and in production you can handle the logs with a logrouter (much like the unix program <code>tail</code>).</p>
+<p>You have almost definitely used some package that does logging. How come you've never seen the output? That's because it's going nowhere. You should always direct your log at <code>stdout</code>. This lets the developer debug code without spamming print statements and in production you can handle the logs with a logrouter (much like the unix program <code>tail</code>).</p>
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span><span style="color: #60a0b0; font-style: italic"># basic.py</span>
 <span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">sys</span>
 <span style="color: #007020; font-weight: bold">import</span> <span style="color: #0e84b5; font-weight: bold">logging</span>
@@ -89,7 +89,7 @@ KeyError: <span style="color: #4070a0">&#39;sauce&#39;</span>
 <span style="color: #40a070">2017</span>-08-01 <span style="color: #40a070">18</span>:20:48,982 - __main__ - DEBUG - I<span style="border: 1px solid #FF0000">&#39;</span>m still running
 </pre></div>
 <h2>IN A CLASS</h2>
-<p>This is just a tip, but there is a more general method <code>log.log</code> that takes a level as the first parameter. This means that you can have instances of the same class that logs with different importance:</p>
+<p>This is just a tip, but there is a more general method <code>log.log</code> that takes a level as the first parameter. This means that you can have instances of the same class that log with different levels of importance:</p>
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>log<span style="color: #666666">.</span>log(<span style="color: #007020">self</span><span style="color: #666666">.</span>level, <span style="color: #4070a0">&#39;the level of this message may vary and contain </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0">&#39;</span>, <span style="color: #4070a0">&#39;peanuts&#39;</span>)
 </pre></div>
 <p>That's it. Basically all there is to logging. I hope that wasn't too bad. And I hope you learned something new :)</p>
