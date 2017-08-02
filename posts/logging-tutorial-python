@@ -60,6 +60,8 @@ log.debug('called deliver with args %s and %s', a, b)
 log.critial('the pizza was not delivered')
 ```
 
+Notice the function signature for log methods: `f(msg, *args, **kwargs)` where `msg` is formatted using `args` with the expression `msg % args`.
+
 ## IN A LIBRARY
 If you are writing a library (some program that other programs import) you should not do any logging configuration. Simply log your messages.
 

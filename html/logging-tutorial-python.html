@@ -52,6 +52,7 @@ DEBUG:urllib3.connectionpool:https://httpbin.org:443 <span style="color: #4070a0
 <div class="highlight" style="background: #f0f0f0"><pre style="line-height: 125%"><span></span>log<span style="color: #666666">.</span>debug(<span style="color: #4070a0">&#39;called deliver with args </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0"> and </span><span style="color: #70a0d0; font-style: italic">%s</span><span style="color: #4070a0">&#39;</span>, a, b)
 log<span style="color: #666666">.</span>critial(<span style="color: #4070a0">&#39;the pizza was not delivered&#39;</span>)
 </pre></div>
+<p>Notice the function signature for log methods: <code>f(msg, *args, **kwargs)</code> where <code>msg</code> is formatted using <code>args</code> with the expression <code>msg % args</code>.</p>
 <h2>IN A LIBRARY</h2>
 <p>If you are writing a library (some program that other programs import) you should not do any logging configuration. Simply log your messages.</p>
 <h2>IN A PROGRAM</h2>
